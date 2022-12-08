@@ -1,11 +1,15 @@
 package com.example.pollingsystem.ui.login;
 
+
 import android.app.Activity;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -25,9 +29,17 @@ import android.widget.Toast;
 
 import com.example.pollingsystem.MainActivity;
 import com.example.pollingsystem.R;
-import com.example.pollingsystem.ui.login.LoginViewModel;
-import com.example.pollingsystem.ui.login.LoginViewModelFactory;
+import com.example.pollingsystem.data.DBHelper;
+import com.example.pollingsystem.data.model.Choice;
+import com.example.pollingsystem.data.model.Poll;
+import com.example.pollingsystem.data.model.Question;
+import com.example.pollingsystem.data.model.Role;
+import com.example.pollingsystem.data.model.User;
+import com.example.pollingsystem.data.model.UserChoice;
+import com.example.pollingsystem.data.model.UserRole;
 import com.example.pollingsystem.databinding.ActivityLoginBinding;
+
+import java.util.Date;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,7 +49,23 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        SQLiteDatabase db = openOrCreateDatabase("PollingSystem", MODE_PRIVATE, null);
+        DBHelper dbHelper = new DBHelper(db);
+        dbHelper.Initialize();
+        User user = new User("stefans","P@ssw0rd!");
+        dbHelper.SaveUser(user);
+        Role role = new Role("Admin");
+        dbHelper.SaveRole(role);
+        UserRole userRole = new UserRole(user,role);
+        dbHelper.SaveUserRole(userRole);
+        Poll poll = new Poll(user,"FirstPoll",new Date(),90);
+        dbHelper.SavePoll(poll);
+        Question question = new Question(poll,"FirstQuestion");
+        dbHelper.SaveQuestion(question);
+        Choice choice = new Choice(question,"FirstChoice");
+        dbHelper.SaveChoice(choice);
+        UserChoice userChoice = new UserChoice(user,choice,new Date(),new Location("Skopje"));
+        dbHelper.SaveUserChoice(userChoice);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

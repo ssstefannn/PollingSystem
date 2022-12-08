@@ -3,23 +3,22 @@ package com.example.pollingsystem.data.model;
 import java.util.List;
 
 public class Role {
-    private int id;
-    private String roleName;
-    private List<User> users;
+    public int id;
+    public String name;
+
+    public Role(String name){
+        this.name = name;
+    }
 
     public int getId() {
         return id;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getName() {
+        return name;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public List<User> getUsers() {
-        return users;
+    public void setName(String name) {
+        this.name = name;
     }
 }

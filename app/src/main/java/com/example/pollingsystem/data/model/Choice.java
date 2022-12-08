@@ -5,6 +5,11 @@ public class Choice {
     private Question question;
     private String name;
 
+    public Choice(Question question, String name){
+        this.question = question;
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }

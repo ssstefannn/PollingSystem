@@ -5,6 +5,11 @@ public class Question {
     private Poll poll;
     private String name;
 
+    public Question(Poll poll, String name){
+        this.poll = poll;
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }

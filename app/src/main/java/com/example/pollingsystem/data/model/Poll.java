@@ -4,10 +4,17 @@ import java.util.Date;
 
 public class Poll {
     private int id;
-    private User creator;
+    private User createdBy;
     private String name;
     private Date startDate;
     private int durationInMinutes;
+
+    public Poll(User createdBy, String name, Date startDate, int durationInMinutes){
+        this.createdBy = createdBy;
+        this.name = name;
+        this.startDate = startDate;
+        this.durationInMinutes = durationInMinutes;
+    }
 
     public int getId() {
         return id;
@@ -17,12 +24,12 @@ public class Poll {
         return name;
     }
 
-    public User getCreator() {
-        return creator;
+    public User getCreatedBy() {
+        return createdBy;
     }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
 
     public void setName(String name) {
@@ -44,4 +51,6 @@ public class Poll {
     public void setDurationInMinutes(int durationInMinutes) {
         this.durationInMinutes = durationInMinutes;
     }
+
+
 }

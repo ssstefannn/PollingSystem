@@ -8,8 +8,15 @@ public class UserChoice {
     private int id;
     private User user;
     private Choice choice;
-    private Date submissionDate;
-    private Location submissionLocation;
+    private Date submittedOn;
+    private Location submittedIn;
+
+    public UserChoice(User user, Choice choice, Date submittedOn, Location submittedIn){
+        this.user = user;
+        this.choice = choice;
+        this.submittedOn = submittedOn;
+        this.submittedIn = submittedIn;
+    }
 
     public int getId() {
         return id;
@@ -31,19 +38,19 @@ public class UserChoice {
         this.choice = choice;
     }
 
-    public Date getSubmissionDate() {
-        return submissionDate;
+    public Date getSubmittedOn() {
+        return submittedOn;
     }
 
-    public void setSubmissionDate(Date submissionDate) {
-        this.submissionDate = submissionDate;
+    public void setSubmittedOn(Date submittedOn) {
+        this.submittedOn = submittedOn;
     }
 
-    public Location getSubmissionLocation() {
-        return submissionLocation;
+    public Location getSubmittedIn() {
+        return submittedIn;
     }
 
-    public void setSubmissionLocation(Location submissionLocation) {
-        this.submissionLocation = submissionLocation;
+    public void setSubmittedIn(Location submittedIn) {
+        this.submittedIn = submittedIn;
     }
 }
