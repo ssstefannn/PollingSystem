@@ -1,32 +1,30 @@
 package com.example.pollingsystem.data.model;
 
-public class UserRole {
-    private int id;
-    private User user;
-    private Role role;
+import androidx.annotation.Nullable;
 
-    public UserRole(User user, Role role){
-        this.user = user;
-        this.role = role;
+public class UserRole extends BaseModel{
+    private Integer userId;
+    private Integer roleId;
+
+    public UserRole(@Nullable Integer id, Integer userId, Integer roleId){
+        super(id);
+        this.userId = userId;
+        this.roleId = roleId;
     }
 
-    public int getId() {
-        return id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public User getUser() {
-        return user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public Integer getRoleId() {
+        return roleId;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 }

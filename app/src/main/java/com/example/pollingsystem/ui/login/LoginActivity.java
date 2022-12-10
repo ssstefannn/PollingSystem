@@ -6,10 +6,8 @@ import android.app.Activity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -30,13 +28,6 @@ import android.widget.Toast;
 import com.example.pollingsystem.MainActivity;
 import com.example.pollingsystem.R;
 import com.example.pollingsystem.data.DBHelper;
-import com.example.pollingsystem.data.model.Choice;
-import com.example.pollingsystem.data.model.Poll;
-import com.example.pollingsystem.data.model.Question;
-import com.example.pollingsystem.data.model.Role;
-import com.example.pollingsystem.data.model.User;
-import com.example.pollingsystem.data.model.UserChoice;
-import com.example.pollingsystem.data.model.UserRole;
 import com.example.pollingsystem.databinding.ActivityLoginBinding;
 
 import java.util.Date;
@@ -45,27 +36,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private ActivityLoginBinding binding;
+    private SQLiteDatabase db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SQLiteDatabase db = openOrCreateDatabase("PollingSystem", MODE_PRIVATE, null);
+        db = openOrCreateDatabase("PollingSystem", MODE_PRIVATE, null);
         DBHelper dbHelper = new DBHelper(db);
         dbHelper.Initialize();
-        User user = new User("stefans","P@ssw0rd!");
-        dbHelper.SaveUser(user);
-        Role role = new Role("Admin");
-        dbHelper.SaveRole(role);
-        UserRole userRole = new UserRole(user,role);
-        dbHelper.SaveUserRole(userRole);
-        Poll poll = new Poll(user,"FirstPoll",new Date(),90);
-        dbHelper.SavePoll(poll);
-        Question question = new Question(poll,"FirstQuestion");
-        dbHelper.SaveQuestion(question);
-        Choice choice = new Choice(question,"FirstChoice");
-        dbHelper.SaveChoice(choice);
-        UserChoice userChoice = new UserChoice(user,choice,new Date(),new Location("Skopje"));
-        dbHelper.SaveUserChoice(userChoice);
+        dbHelper.SetDefaultDbData();
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -138,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                            passwordEditText.getText().toString(), db);
                 }
                 return false;
             }
@@ -149,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
                 loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                        passwordEditText.getText().toString(), db);
             }
         });
     }

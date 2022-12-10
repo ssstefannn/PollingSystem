@@ -1,17 +1,13 @@
 package com.example.pollingsystem.data.model;
 
-import java.util.List;
+import androidx.annotation.Nullable;
 
-public class Role {
-    public int id;
-    public String name;
+public class Role extends BaseModel{
+    private String name;
 
-    public Role(String name){
+    public Role(@Nullable Integer id, String name){
+        super(id);
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getName() {
@@ -21,4 +17,6 @@ public class Role {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

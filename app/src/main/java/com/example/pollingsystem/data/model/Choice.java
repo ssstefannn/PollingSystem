@@ -1,25 +1,15 @@
 package com.example.pollingsystem.data.model;
 
-public class Choice {
-    private int id;
-    private Question question;
+import androidx.annotation.Nullable;
+
+public class Choice extends BaseModel {
+    private Integer questionId;
     private String name;
 
-    public Choice(Question question, String name){
-        this.question = question;
+    public Choice(@Nullable Integer id, Integer questionId, String name){
+        super(id);
+        this.questionId = questionId;
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
     }
 
     public String getName() {
@@ -28,5 +18,13 @@ public class Choice {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
 }

@@ -1,35 +1,27 @@
 package com.example.pollingsystem.data.model;
 
-import java.util.Date;
+import androidx.annotation.Nullable;
 
-public class Poll {
-    private int id;
-    private User createdBy;
+import java.util.Date;
+import java.util.List;
+
+public class Poll extends BaseModel{
+    private Integer createdByUserId;
     private String name;
     private Date startDate;
     private int durationInMinutes;
+    private List<Question> questions;
 
-    public Poll(User createdBy, String name, Date startDate, int durationInMinutes){
-        this.createdBy = createdBy;
+    public Poll(@Nullable Integer id, Integer createdByUserId, String name, Date startDate, int durationInMinutes){
+        super(id);
+        this.createdByUserId = createdByUserId;
         this.name = name;
         this.startDate = startDate;
         this.durationInMinutes = durationInMinutes;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
     }
 
     public void setName(String name) {
@@ -52,5 +44,19 @@ public class Poll {
         this.durationInMinutes = durationInMinutes;
     }
 
+    public Integer getCreatedByUserId() {
+        return createdByUserId;
+    }
 
+    public void setCreatedByUserId(Integer createdByUserId) {
+        this.createdByUserId = createdByUserId;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
 }

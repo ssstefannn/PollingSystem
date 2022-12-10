@@ -2,40 +2,22 @@ package com.example.pollingsystem.data.model;
 
 import android.location.Location;
 
+import androidx.annotation.Nullable;
+
 import java.util.Date;
 
-public class UserChoice {
-    private int id;
-    private User user;
-    private Choice choice;
+public class UserChoice extends BaseModel{
+    private Integer userId;
+    private Integer choiceId;
     private Date submittedOn;
     private Location submittedIn;
 
-    public UserChoice(User user, Choice choice, Date submittedOn, Location submittedIn){
-        this.user = user;
-        this.choice = choice;
+    public UserChoice(@Nullable Integer id, Integer userId, Integer choiceId, Date submittedOn, Location submittedIn){
+        super(id);
+        this.userId = userId;
+        this.choiceId = choiceId;
         this.submittedOn = submittedOn;
         this.submittedIn = submittedIn;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Choice getChoice() {
-        return choice;
-    }
-
-    public void setChoice(Choice choice) {
-        this.choice = choice;
     }
 
     public Date getSubmittedOn() {
@@ -52,5 +34,21 @@ public class UserChoice {
 
     public void setSubmittedIn(Location submittedIn) {
         this.submittedIn = submittedIn;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getChoiceId() {
+        return choiceId;
+    }
+
+    public void setChoiceId(Integer choiceId) {
+        this.choiceId = choiceId;
     }
 }
