@@ -4,13 +4,20 @@ import androidx.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class User extends BaseModel{
     private String username;
     private String password;
     private List<Role> roles;
 
-    public User(@Nullable Integer id, String username, String password){
+    public User(String username, String password){
+        super();
+        this.username = username;
+        this.password = password;
+    }
+
+    public User(UUID id, String username, String password){
         super(id);
         this.username = username;
         this.password = password;

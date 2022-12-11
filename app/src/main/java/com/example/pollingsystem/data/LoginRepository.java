@@ -53,4 +53,13 @@ public class LoginRepository {
         }
         return result;
     }
+
+    public Result<LoggedInUser> register(String username, String password, SQLiteDatabase db) {
+        // handle login
+        Result<LoggedInUser> result = dataSource.register(username, password, db);
+        if (result instanceof Result.Success) {
+            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+        }
+        return result;
+    }
 }

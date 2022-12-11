@@ -5,14 +5,23 @@ import android.location.Location;
 import androidx.annotation.Nullable;
 
 import java.util.Date;
+import java.util.UUID;
 
-public class UserChoice extends BaseModel{
-    private Integer userId;
-    private Integer choiceId;
+public class UserChoice extends BaseModel {
+    private UUID userId;
+    private UUID choiceId;
     private Date submittedOn;
     private Location submittedIn;
 
-    public UserChoice(@Nullable Integer id, Integer userId, Integer choiceId, Date submittedOn, Location submittedIn){
+    public UserChoice(UUID userID, UUID choiceId, Date submittedOn, Location submittedIn) {
+        super();
+        this.userId = userId;
+        this.choiceId = choiceId;
+        this.submittedOn = submittedOn;
+        this.submittedIn = submittedIn;
+    }
+
+    public UserChoice(UUID id, UUID userId, UUID choiceId, Date submittedOn, Location submittedIn) {
         super(id);
         this.userId = userId;
         this.choiceId = choiceId;
@@ -36,19 +45,19 @@ public class UserChoice extends BaseModel{
         this.submittedIn = submittedIn;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getChoiceId() {
+    public UUID getChoiceId() {
         return choiceId;
     }
 
-    public void setChoiceId(Integer choiceId) {
+    public void setChoiceId(UUID choiceId) {
         this.choiceId = choiceId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }

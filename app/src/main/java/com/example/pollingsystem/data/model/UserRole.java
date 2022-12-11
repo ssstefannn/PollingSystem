@@ -2,29 +2,37 @@ package com.example.pollingsystem.data.model;
 
 import androidx.annotation.Nullable;
 
-public class UserRole extends BaseModel{
-    private Integer userId;
-    private Integer roleId;
+import java.util.UUID;
 
-    public UserRole(@Nullable Integer id, Integer userId, Integer roleId){
+public class UserRole extends BaseModel{
+    private UUID userId;
+    private UUID roleId;
+
+    public UserRole(UUID userId, UUID roleId){
+        super();
+        this.userId = userId;
+        this.roleId = roleId;
+    }
+
+    public UserRole(@Nullable UUID id, UUID userId, UUID roleId){
         super(id);
         this.userId = userId;
         this.roleId = roleId;
     }
 
-    public Integer getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
-    public Integer getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(UUID roleId) {
         this.roleId = roleId;
     }
 }
