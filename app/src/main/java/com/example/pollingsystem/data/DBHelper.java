@@ -17,6 +17,7 @@ import com.example.pollingsystem.data.model.UserRole;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,7 +31,7 @@ public class DBHelper {
     private static SQLiteDatabase db;
     private static String DomainModels[] = {"User", "Role", "UserRole", "Poll", "Question", "Choice", "UserChoice"};
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private Boolean startFromScratch = true;
+    private Boolean startFromScratch = false;
 
     public DBHelper(SQLiteDatabase db) {
         this.db = db;
@@ -202,6 +203,7 @@ public class DBHelper {
         contentValues.put("ChoiceID", userChoice.getChoiceId().toString());
         contentValues.put("SubmittedOn", format.format(userChoice.getSubmittedOn()));
         contentValues.put("SubmittedIn", userChoice.getSubmittedIn().toString());
+        db.insert("UserChoices",null,contentValues);
     }
 
     public User GetUserById(UUID id) {
@@ -476,9 +478,13 @@ public class DBHelper {
 
             Calendar calendar = Calendar.getInstance();
             long timeInMillis = calendar.getTimeInMillis();
-            Date dateInPast = new Date(timeInMillis - poll.getDurationInMinutes() * 60 * 1000);
-            if (true || poll.getStartDate().after(dateInPast)) {
-                polls.add(poll);
+            //Date dateInPast = new Date(timeInMillis - poll.getDurationInMinutes() * 60 * 1000);
+            Date dateInPast = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                dateInPast = Date.from(Instant.ofEpochMilli(timeInMillis - poll.getDurationInMinutes() * 60 * 1000));
+                if (!poll.getStartDate().after(dateInPast)) {
+                    polls.add(poll);
+                }
             }
         } while (cursor.moveToNext());
 

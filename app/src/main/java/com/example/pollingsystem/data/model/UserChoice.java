@@ -13,7 +13,7 @@ public class UserChoice extends BaseModel {
     private Date submittedOn;
     private Location submittedIn;
 
-    public UserChoice(UUID userID, UUID choiceId, Date submittedOn, Location submittedIn) {
+    public UserChoice(UUID userId, UUID choiceId, Date submittedOn, Location submittedIn) {
         super();
         this.userId = userId;
         this.choiceId = choiceId;
