@@ -1,8 +1,8 @@
 package com.example.pollingsystem.ui.pollresults;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Build;
@@ -18,19 +18,11 @@ import com.example.pollingsystem.data.model.Choice;
 import com.example.pollingsystem.data.model.Poll;
 import com.example.pollingsystem.data.model.Question;
 import com.example.pollingsystem.ui.resultsmap.MapsFragment;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.ParseException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
-
-import kotlin.TuplesKt;
 
 public class PollResultsActivity extends AppCompatActivity {
     private DBHelper dbHelper;
@@ -53,7 +45,9 @@ public class PollResultsActivity extends AppCompatActivity {
         // Retrieve the poll data
         Poll poll = null;
         try {
-            poll = dbHelper.GetPollById(UUID.fromString("4233ee29-d06f-495c-823d-c83d9e89f68f"));
+            Intent intent = getIntent();
+            UUID pollId = UUID.fromString(intent.getStringExtra("pollId"));
+            poll = dbHelper.GetPollById(pollId);
             // Set the poll title
             TextView pollTitleTextView = (TextView) findViewById(R.id.poll_title);
             pollTitleTextView.setText(poll.getName());
@@ -62,7 +56,7 @@ public class PollResultsActivity extends AppCompatActivity {
             LayoutInflater inflater = LayoutInflater.from(this);
             for (Question question : poll.getQuestions()) {
                 // Inflate the question item layout
-                View questionView = inflater.inflate(R.layout.question_item, questionLayout, false);
+                View questionView = inflater.inflate(R.layout.activity_poll_results_question_item, questionLayout, false);
 
                 // Set the question name
                 TextView questionNameTextView = (TextView) questionView.findViewById(R.id.question_name);
@@ -72,7 +66,7 @@ public class PollResultsActivity extends AppCompatActivity {
                 LinearLayout choicesLayout = (LinearLayout) questionView.findViewById(R.id.choices_layout);
                 for (Choice choice : question.getChoices()) {
                     // Inflate the choice layout
-                    View choiceView = inflater.inflate(R.layout.choice_item, choicesLayout, false);
+                    View choiceView = inflater.inflate(R.layout.activity_poll_results_choice_item, choicesLayout, false);
 
                     // Set the choice text
                     TextView choiceTextView = (TextView) choiceView.findViewById(R.id.choice_text);
@@ -81,8 +75,7 @@ public class PollResultsActivity extends AppCompatActivity {
                     // Set the vote count
                     TextView voteCountTextView = (TextView) choiceView.findViewById(R.id.vote_count);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        //voteCountTextView.setText(String.valueOf(choice.getUserChoices().stream().count()));
-                        voteCountTextView.setText(String.valueOf(1000));
+                        voteCountTextView.setText(String.valueOf(choice.getUserChoices().stream().count()));
                     }
 
                     // Add the choice view to the choices layout
@@ -113,11 +106,13 @@ public class PollResultsActivity extends AppCompatActivity {
                 bundle.putSerializable("latitudes", latitudes);
                 bundle.putSerializable("longitudes", longitudes);
 
-                MapsFragment fragment = new MapsFragment();
+                MapsFragment fragment = (MapsFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+                View mapView = fragment.getView();
+
+                mapView.setNestedScrollingEnabled(true);
 
                 fragment.setArguments(bundle);
-
-                getSupportFragmentManager().beginTransaction().add(R.id.map, fragment).commit();
 
             }
         } catch (ParseException e) {

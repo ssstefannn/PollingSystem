@@ -63,7 +63,7 @@ public class VotePollActivity extends AppCompatActivity {
             votePollRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
             // сетирање на кориснички дефиниран адаптер myAdapter (посебна класа)
-            votePollAdapter = new VotePollAdapter(poll.getQuestions(), R.layout.question_row, this);
+            votePollAdapter = new VotePollAdapter(poll.getQuestions(), R.layout.activity_vote_poll_question_row, this);
 //прикачување на адаптерот на RecyclerView
             votePollRecyclerView.setAdapter(votePollAdapter);
         } catch (ParseException e) {

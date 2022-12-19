@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.os.Build;
 
 import com.example.pollingsystem.data.model.Choice;
 import com.example.pollingsystem.data.model.Poll;
@@ -34,7 +35,7 @@ public class DBHelper {
     private static String DomainModels[] = {"User", "Role", "UserRole", "Poll", "Question", "Choice", "UserChoice"};
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private FusedLocationProviderClient fusedLocationClient;
-    private Boolean startFromScratch = true;
+    private Boolean startFromScratch = false;
 
 
     public DBHelper(SQLiteDatabase db) {
@@ -204,7 +205,7 @@ public class DBHelper {
         contentValues.put("UserID", userChoice.getUserId().toString());
         contentValues.put("ChoiceID", userChoice.getChoiceId().toString());
         contentValues.put("SubmittedOn", format.format(userChoice.getSubmittedOn()));
-        contentValues.put("SubmittedIn", userChoice.getSubmittedIn().toString());
+        contentValues.put("SubmittedIn", userChoice.getSubmittedIn().getLatitude() + "," + userChoice.getSubmittedIn().getLongitude());
         db.insert("UserChoices",null,contentValues);
     }
 
@@ -223,6 +224,7 @@ public class DBHelper {
         cursor = db.rawQuery("SELECT * FROM Roles WHERE RoleID IN (SELECT RoleID FROM UserRoles WHERE UserID = ?)",
                 new String[]{id.toString()});
         cursor.moveToFirst();
+        List<Role> roles = new LinkedList<>();
         do {
             if (cursor.getCount() == 0) {
                 break;
@@ -230,10 +232,10 @@ public class DBHelper {
             @SuppressLint("Range") UUID roleId = UUID.fromString(cursor.getString(cursor.getColumnIndex("RoleID")));
             @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex("Name"));
             Role role = new Role(roleId, name);
-            user.addRole(role);
+            roles.add(role);
         } while (cursor.moveToNext());
         cursor.close();
-
+        user.setRoles(roles);
         return user;
     }
 
@@ -407,12 +409,18 @@ public class DBHelper {
         if (cursor.getCount() == 0) {
             return null;
         }
+        Location location = new Location("location");
+        @SuppressLint("Range") String latLong = cursor.getString(cursor.getColumnIndex("SubmittedIn"));
+        Double latitude = Double.parseDouble(latLong.split(",",2)[0]);
+        Double longitude = Double.parseDouble(latLong.split(",",2)[1]);
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
         @SuppressLint("Range") UserChoice userChoice = new UserChoice(
                 UUID.fromString(cursor.getString(cursor.getColumnIndex("UserChoiceID"))),
                 UUID.fromString(cursor.getString(cursor.getColumnIndex("UserID"))),
                 UUID.fromString(cursor.getString(cursor.getColumnIndex("ChoiceID"))),
                 format.parse(cursor.getString(cursor.getColumnIndex("SubmittedOn"))),
-                new Location(cursor.getString(cursor.getColumnIndex("SubmittedIn"))));
+                location);
 
         return userChoice;
     }
@@ -514,20 +522,22 @@ public class DBHelper {
         return polls;
     }
 
-    public List<Poll> GetAnsweredFinishedPollsByUserId(UUID userId) throws ParseException {
-        Cursor cursor = db.rawQuery("SELECT PollID FROM Polls " +
-                        "WHERE PollID IN " +
-                        "( " +
-                        "   SELECT PollID FROM Polls P " +
-                        "   JOIN Questions Q " +
-                        "   ON P.PollID = Q.PollID " +
-                        "   JOIN Choices C " +
-                        "   ON Q.QuestionID = C.QuestionID " +
-                        "   JOIN UserChoices UC " +
-                        "   ON C.ChoiceID = UC.ChoiceID " +
-                        "   WHERE UC.UserID = ?" +
-                        ")",
-                new String[]{userId.toString()});
+    public List<Poll> GetFinishedPollsByUserId(UUID userId) throws ParseException {
+//        Cursor cursor = db.rawQuery("SELECT PollID FROM Polls " +
+//                        "WHERE PollID IN " +
+//                        "( " +
+//                        "   SELECT PollID FROM Polls P " +
+//                        "   JOIN Questions Q " +
+//                        "   ON P.PollID = Q.PollID " +
+//                        "   JOIN Choices C " +
+//                        "   ON Q.QuestionID = C.QuestionID " +
+//                        "   JOIN UserChoices UC " +
+//                        "   ON C.ChoiceID = UC.ChoiceID " +
+//                        "   WHERE UC.UserID = ?" +
+//                        ")",
+//                new String[]{userId.toString()});
+        User user = GetUserById(userId);
+        Cursor cursor = db.rawQuery("SELECT PollID FROM Polls",new String[]{});
         cursor.moveToFirst();
         List<Poll> polls = new LinkedList<>();
         do {
@@ -539,8 +549,11 @@ public class DBHelper {
             Calendar calendar = Calendar.getInstance();
             long timeInMillis = calendar.getTimeInMillis();
             Date dateInPast = new Date(timeInMillis - poll.getDurationInMinutes() * 60 * 1000);
-            if (poll.getStartDate().before(dateInPast)) {
-                polls.add(poll);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (user.getRoles().stream().anyMatch(x -> x.getName().equals("Admin")) ||
+                        poll.getStartDate().before(dateInPast)) {
+                    polls.add(poll);
+                }
             }
         } while (cursor.moveToNext());
 
