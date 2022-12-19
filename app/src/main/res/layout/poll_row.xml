@@ -5,17 +5,22 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     card_view:cardCornerRadius="5dp"
-    card_view:cardElevation="5dp">
-
-    <TextView
-        android:id="@+id/pollTitle"
-        android:layout_width="214dp"
-        android:layout_height="37dp" />
-
+    card_view:cardElevation="5dp"
+    android:padding="10dp">
     <TextView
         android:id="@+id/pollStatus"
         android:layout_width="145dp"
-        android:layout_height="20dp"
-        android:layout_gravity="end"
-        android:textAlignment="viewEnd"/>
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"/>
+    <TextView
+        android:id="@+id/pollTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:textColor="@color/black"
+        android:singleLine="false"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"/>
+
 </androidx.cardview.widget.CardView>

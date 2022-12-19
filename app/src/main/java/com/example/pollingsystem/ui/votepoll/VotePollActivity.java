@@ -9,15 +9,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.Manifest.permission;
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
-import android.provider.CallLog;
-import android.renderscript.RenderScript;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -29,13 +25,9 @@ import com.example.pollingsystem.data.model.Choice;
 import com.example.pollingsystem.data.model.Poll;
 import com.example.pollingsystem.data.model.User;
 import com.example.pollingsystem.data.model.UserChoice;
-import com.example.pollingsystem.ui.polls.PollsAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnSuccessListener;
-
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -60,7 +52,9 @@ public class VotePollActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         try {
-            Poll poll = dbHelper.GetPollById(UUID.fromString("ada8aa29-4e25-4322-b0a9-9167f3741508"));
+            Intent intent = getIntent();
+            UUID pollId = UUID.fromString(intent.getStringExtra("pollId"));
+            Poll poll = dbHelper.GetPollById(pollId);
             TextView pollTitle = (TextView) findViewById(R.id.pollTitle);
             pollTitle.setText(poll.getName());
             votePollRecyclerView = (RecyclerView) findViewById(R.id.question);

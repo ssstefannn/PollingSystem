@@ -22,22 +22,25 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.pollingsystem.ui.polls.PollsActivity;
+import com.example.pollingsystem.data.global.LoggedInUserApplication;
+import com.example.pollingsystem.data.model.User;
+import com.example.pollingsystem.databinding.ActivityLoginBinding;
+import com.example.pollingsystem.ui.activeunansweredpolls.ActiveUnansweredPollsActivity;
 import com.example.pollingsystem.R;
 import com.example.pollingsystem.data.DBHelper;
-import com.example.pollingsystem.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private ActivityLoginBinding binding;
     private SQLiteDatabase db;
+    private DBHelper dbHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = openOrCreateDatabase("PollingSystem", MODE_PRIVATE, null);
-        DBHelper dbHelper = new DBHelper(db);
+        dbHelper = new DBHelper(db);
         dbHelper.Initialize();
         dbHelper.SetDefaultDbData();
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
@@ -109,17 +112,6 @@ public class LoginActivity extends AppCompatActivity {
         };
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
-//        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                    loginViewModel.login(usernameEditText.getText().toString(),
-//                            passwordEditText.getText().toString(), db);
-//                }
-//                return false;
-//            }
-//        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,8 +134,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + " " + model.getDisplayName() + "!";
-        // TODO : initiate successful logged in experience
-        Intent intent = new Intent(this, PollsActivity.class);
+        ((LoggedInUserApplication) getApplication()).setUserName(model.getDisplayName());
+        User user = dbHelper.GetUserByUsername(model.getDisplayName());
+        ((LoggedInUserApplication) getApplication()).setUserId(user.getId());
+        Intent intent = new Intent(this, ActiveUnansweredPollsActivity.class);
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         startActivity(intent);
     }

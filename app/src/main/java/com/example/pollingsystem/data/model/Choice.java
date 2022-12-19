@@ -1,10 +1,12 @@
 package com.example.pollingsystem.data.model;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Choice extends BaseModel {
     private UUID questionId;
     private String name;
+    private List<UserChoice> userChoices;
 
     public Choice(UUID questionId, String name){
         super();
@@ -32,5 +34,13 @@ public class Choice extends BaseModel {
 
     public void setQuestionId(UUID questionId) {
         this.questionId = questionId;
+    }
+
+    public List<UserChoice> getUserChoices() {
+        return userChoices;
+    }
+
+    public void setUserChoices(List<UserChoice> userChoices) {
+        this.userChoices = userChoices;
     }
 }

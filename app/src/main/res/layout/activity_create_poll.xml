@@ -1,71 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.createpoll.CreatePollActivity">
+    android:layout_height="match_parent">
 
-
-    <EditText
-        android:id="@+id/editTextTextMultiLine"
-        android:layout_width="323dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="28dp"
-        android:ems="10"
-        android:gravity="start|top"
-        android:hint="Poll title"
-        android:inputType="textMultiLine"
-        android:textSize="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.513"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
-        tools:ignore="MissingConstraints" />
-
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottomAppBar"
-        android:layout_width="412dp"
-        android:layout_height="59dp"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="4dp"
-        android:outlineProvider="none"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.448"
-        app:layout_constraintStart_toStartOf="parent"
-        app:elevation="0dp"
-        tools:ignore="BottomAppBar" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="184dp"
-        android:layout_height="48dp"
-        android:backgroundTint="@color/black"
-        android:text="Add a question"
-        app:layout_constraintBottom_toBottomOf="@+id/bottomAppBar"
-        app:layout_constraintEnd_toEndOf="@+id/bottomAppBar"
-        app:layout_constraintStart_toStartOf="@+id/bottomAppBar"
-        app:layout_constraintTop_toTopOf="@+id/bottomAppBar" />
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/my_toolbar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/create_question_recycler"
-        android:layout_width="409dp"
-        android:layout_height="522dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="145dp"
-        tools:ignore="MissingConstraints" />
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/ctl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:elevation="4dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:titleTextColor="#FFFFFF">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:title="Create a poll"/>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/poll_title_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter poll title"
+                android:textSize="30dp"/>
+
+            <EditText
+                android:id="@+id/poll_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter duration in minutes"
+                android:textSize="30dp"
+                android:inputType="number"/>
+
+            <LinearLayout
+                android:id="@+id/questions_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle"
+                android:padding="16dp">
+
+                <!-- The first question and choices will be added programmatically -->
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/add_question_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add question" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

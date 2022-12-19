@@ -13,6 +13,8 @@ import com.example.pollingsystem.data.model.Role;
 import com.example.pollingsystem.data.model.User;
 import com.example.pollingsystem.data.model.UserChoice;
 import com.example.pollingsystem.data.model.UserRole;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.lang.reflect.Field;
 import java.text.ParseException;
@@ -30,8 +32,10 @@ public class DBHelper {
 
     private static SQLiteDatabase db;
     private static String DomainModels[] = {"User", "Role", "UserRole", "Poll", "Question", "Choice", "UserChoice"};
-    private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private Boolean startFromScratch = false;
+    private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private FusedLocationProviderClient fusedLocationClient;
+    private Boolean startFromScratch = true;
+
 
     public DBHelper(SQLiteDatabase db) {
         this.db = db;
@@ -61,8 +65,8 @@ public class DBHelper {
         db.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS UserRoles(" +
                 "UserRoleID TEXT PRIMARY KEY," +
-                "UserID INTEGER NOT NULL," +
-                "RoleID INTEGER NOT NULL," +
+                "UserID TEXT NOT NULL," +
+                "RoleID TEXT NOT NULL," +
                 "CONSTRAINT FK_UserRoles" +
                 "   FOREIGN KEY (UserID) REFERENCES Users (UserID)," +
                 "   FOREIGN KEY (RoleID) REFERENCES Roles (RoleID)" +
@@ -70,7 +74,7 @@ public class DBHelper {
         db.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS Polls(" +
                 "PollID TEXT PRIMARY KEY," +
-                "UserID INTEGER NOT NULL," +
+                "UserID TEXT NOT NULL," +
                 "Name TEXT," +
                 "StartDate TEXT," +
                 "DurationInMinutes INTEGER," +
@@ -80,7 +84,7 @@ public class DBHelper {
         db.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS Questions(" +
                 "QuestionID TEXT PRIMARY KEY," +
-                "PollID INTEGER NOT NULL," +
+                "PollID TEXT NOT NULL," +
                 "Name TEXT," +
                 "CONSTRAINT [FK_Questions]" +
                 "   FOREIGN KEY (PollID) REFERENCES Polls (PollID)" +
@@ -88,7 +92,7 @@ public class DBHelper {
         db.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS Choices(" +
                 "ChoiceID TEXT PRIMARY KEY," +
-                "QuestionID INTEGER NOT NULL," +
+                "QuestionID TEXT NOT NULL," +
                 "Name TEXT," +
                 "CONSTRAINT [FK_Choices]" +
                 "   FOREIGN KEY (QuestionID) REFERENCES Questions (QuestionID)" +
@@ -96,16 +100,14 @@ public class DBHelper {
         db.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS UserChoices(" +
                 "UserChoiceID TEXT PRIMARY KEY," +
-                "UserID INTEGER NOT NULL," +
-                "ChoiceID INTEGER NOT NULL," +
+                "UserID TEXT NOT NULL," +
+                "ChoiceID TEXT NOT NULL," +
                 "SubmittedOn TEXT," +
                 "SubmittedIn TEXT," +
                 "CONSTRAINT [FK_UserChoices]" +
                 "   FOREIGN KEY (UserID) REFERENCES Users (UserID)," +
                 "   FOREIGN KEY (ChoiceID) REFERENCES Choices (ChoiceID)" +
                 ");");
-
-
     }
 
     public <T> void Save(T data) throws Exception {
@@ -275,6 +277,7 @@ public class DBHelper {
         return user;
     }
 
+    @SuppressLint("Range")
     public User GetUserByUsername(String username) {
         Cursor cursor = db.rawQuery("SELECT * FROM Users WHERE Username = ?",
                 new String[]{username});
@@ -282,11 +285,8 @@ public class DBHelper {
         if (cursor.getCount() == 0) {
             return null;
         }
-        @SuppressLint("Range") User user = new User(
-                UUID.fromString(cursor.getString(cursor.getColumnIndex("UserID"))),
-                cursor.getString(cursor.getColumnIndex("Username")),
-                cursor.getString(cursor.getColumnIndex("Password"))
-        );
+
+        User user = GetUserById(UUID.fromString(cursor.getString(cursor.getColumnIndex("UserID"))));
 
         return user;
     }
@@ -321,7 +321,7 @@ public class DBHelper {
         return role;
     }
 
-    public Choice GetChoiceById(UUID id) {
+    public Choice GetChoiceById(UUID id) throws ParseException {
         Cursor cursor = db.rawQuery("SELECT * FROM Choices WHERE ChoiceID = ?",
                 new String[]{id.toString()});
         cursor.moveToFirst();
@@ -334,10 +334,12 @@ public class DBHelper {
                 cursor.getString(cursor.getColumnIndex("Name"))
         );
 
+        List<UserChoice> userChoices = GetUserChoicesByChoiceId(choice.getId());
+        choice.setUserChoices(userChoices);
         return choice;
     }
 
-    public Question GetQuestionById(UUID id) {
+    public Question GetQuestionById(UUID id) throws ParseException {
         Cursor cursor = db.rawQuery("SELECT * FROM Questions WHERE QuestionID = ?",
                 new String[]{id.toString()});
         cursor.moveToFirst();
@@ -415,6 +417,27 @@ public class DBHelper {
         return userChoice;
     }
 
+    public List<UserChoice> GetUserChoicesByChoiceId(UUID id) throws ParseException {
+        Cursor cursor = db.rawQuery("SELECT * FROM UserChoices WHERE ChoiceID = ?",
+                new String[]{id.toString()});
+        if(cursor.getCount() == 0){
+            return new LinkedList<>();
+        }
+        List<UserChoice> userChoices = new LinkedList<>();
+        cursor.moveToFirst();
+        do {
+            if (cursor.getCount() == 0) {
+                break;
+            }
+            @SuppressLint("Range") UserChoice userChoice =
+                    GetUserChoiceById(UUID.fromString(cursor.getString(cursor.getColumnIndex("UserChoiceID"))));
+
+            userChoices.add(userChoice);
+        } while (cursor.moveToNext());
+
+        return userChoices;
+    }
+
     public List<UserChoice> GetUserChoicesByPollId(UUID pollId) throws ParseException {
         Cursor cursor = db.rawQuery("SELECT UC.UserChoiceID FROM UserChoices UC  " +
                         "JOIN Choices C " +
@@ -482,7 +505,7 @@ public class DBHelper {
             Date dateInPast = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 dateInPast = Date.from(Instant.ofEpochMilli(timeInMillis - poll.getDurationInMinutes() * 60 * 1000));
-                if (!poll.getStartDate().after(dateInPast)) {
+                if (poll.getStartDate().after(dateInPast)) {
                     polls.add(poll);
                 }
             }
@@ -544,7 +567,7 @@ public class DBHelper {
         userRole = new UserRole(user.getId(), role.getId());
         SaveUserRole(userRole);
 
-        Poll poll = new Poll(user.getId(), "First poll", new Date(), 90);
+        Poll poll = new Poll(user.getId(), "First pollFirst pollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst poollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst pollFirst poll", new Date(), 90);
         SavePoll(poll);
         Question question = new Question(poll.getId(), "First question of first poll");
         SaveQuestion(question);
@@ -565,22 +588,38 @@ public class DBHelper {
 
         poll = new Poll(user.getId(), "Second poll", new Date(), 90);
         SavePoll(poll);
-        question = new Question(poll.getId(), "First question of second");
+        question = new Question(poll.getId(), "First question of second poll");
         SaveQuestion(question);
-        choice = new Choice(question.getId(), "First choice of first question of second");
+        choice = new Choice(question.getId(), "First choice of first question of second poll");
         SaveChoice(choice);
-        choice = new Choice(question.getId(), "Second choice of first question of second");
+        choice = new Choice(question.getId(), "Second choice of first question of second poll");
         SaveChoice(choice);
-        choice = new Choice(question.getId(), "Third choice of first question of second");
+        choice = new Choice(question.getId(), "Third choice of first question of second poll");
         SaveChoice(choice);
-        question = new Question(poll.getId(), "Second question of second");
+        question = new Question(poll.getId(), "Second question of second poll");
         SaveQuestion(question);
-        choice = new Choice(question.getId(), "First choice of second question of second");
+        choice = new Choice(question.getId(), "First choice of second question of second poll");
         SaveChoice(choice);
-        choice = new Choice(question.getId(), "Second choice of second question of second");
+        choice = new Choice(question.getId(), "Second choice of second question of second poll");
         SaveChoice(choice);
-        choice = new Choice(question.getId(), "Third choice of second question of second");
+        choice = new Choice(question.getId(), "Third choice of second question of second poll");
         SaveChoice(choice);
 
+        UserChoice userChoice = new UserChoice(
+                UUID.randomUUID(),
+                choice.getId(),
+                new Date(),
+                new Location("New york"));
+
+        SaveUserChoice(userChoice);
+
+        userChoice = new UserChoice(
+                UUID.randomUUID(),
+                choice.getId(),
+                new Date(),
+                new Location("Skopje"));
+
+        SaveUserChoice(userChoice);
     }
+
 }
