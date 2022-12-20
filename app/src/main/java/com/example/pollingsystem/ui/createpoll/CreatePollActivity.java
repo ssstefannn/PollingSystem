@@ -1,6 +1,7 @@
 package com.example.pollingsystem.ui.createpoll;
 
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import com.example.pollingsystem.data.global.LoggedInUserApplication;
 import com.example.pollingsystem.data.model.Choice;
 import com.example.pollingsystem.data.model.Poll;
 import com.example.pollingsystem.data.model.Question;
+import com.example.pollingsystem.ui.activeunansweredpolls.ActiveUnansweredPollsActivity;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.time.Instant;
@@ -82,31 +84,25 @@ public class CreatePollActivity extends AppCompatActivity {
                     poll = new Poll(userId, pollTitle, Date.from(Instant.now()), durationInMinutes);
                 }
                 dbHelper.SavePoll(poll);
-                String[][] matrix = new String[questionForms.getChildCount()][];
-                // For every question
                 for (int i = 0; i < questionForms.getChildCount(); i++) {
-                    // Get the current question
                     View childView = questionForms.getChildAt(i);
-                    // Check if the child view is a LinearLayout
-                    if (childView instanceof LinearLayout) {
-                        // Cast the child view to a LinearLayout
-                        LinearLayout questionForm = (LinearLayout) childView;
-                        // Get the question EditText and choice RadioButtons from the LinearLayout
-                        EditText questionEditText = (EditText) questionForm.getChildAt(0);
-                        String questionTitle = questionEditText.getText().toString();
-                        Question question = new Question(poll.getId(), questionTitle);
-                        dbHelper.SaveQuestion(question);
-                        for (int j = 1; j < questionForm.getChildCount() - 1; j++) {
-                            EditText choiceEditText = (EditText) questionForm.getChildAt(j);
-                            String choiceText = choiceEditText.getText().toString();
-                            Choice choice = new Choice(question.getId(), choiceText);
-                            dbHelper.SaveChoice(choice);
-                        }
+                    LinearLayout questionForm = (LinearLayout) childView;
+                    EditText questionEditText = (EditText) questionForm.getChildAt(0);
+                    String questionTitle = questionEditText.getText().toString();
+                    Question question = new Question(poll.getId(), questionTitle);
+                    dbHelper.SaveQuestion(question);
+                    for (int j = 1; j < questionForm.getChildCount() - 1; j++) {
+                        EditText choiceEditText = (EditText) questionForm.getChildAt(j);
+                        String choiceText = choiceEditText.getText().toString();
+                        Choice choice = new Choice(question.getId(), choiceText);
+                        dbHelper.SaveChoice(choice);
                     }
                 }
-                break;
+                Intent intent = new Intent(this, ActiveUnansweredPollsActivity.class);
+                startActivity(intent);
+                return true;
         }
-        return true;
+        return false;
     }
 
     private void addQuestion() {
@@ -120,11 +116,10 @@ public class CreatePollActivity extends AppCompatActivity {
 
         Button addOptionButton = new Button(this);
         addOptionButton.setText("Add option");
-        addOptionButton.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
+        addOptionButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2));
         questionLinearLayout.addView(addOptionButton);
 
-        // Add the default options
+        // Default 3 options
         addOption(questionLinearLayout, 1);
         addOption(questionLinearLayout, 1);
         addOption(questionLinearLayout, 1);
@@ -142,8 +137,7 @@ public class CreatePollActivity extends AppCompatActivity {
     private void addOption(LinearLayout questionLinearLayout, int layoutWeight) {
         EditText optionEditText = new EditText(this);
         optionEditText.setHint("Enter option title");
-        optionEditText.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, layoutWeight));
+        optionEditText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, layoutWeight));
         questionLinearLayout.addView(optionEditText, questionLinearLayout.getChildCount() - 1);
     }
 

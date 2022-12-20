@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 
 import com.example.pollingsystem.R;
 import com.example.pollingsystem.data.DBHelper;
+import com.example.pollingsystem.data.global.LoggedInUserApplication;
 import com.example.pollingsystem.data.model.Poll;
 import com.example.pollingsystem.data.model.User;
 import com.example.pollingsystem.ui.createpoll.CreatePollActivity;
@@ -108,8 +109,7 @@ public class ActiveUnansweredPollsActivity extends AppCompatActivity implements 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.create_poll_button);
-//        UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
-        UUID userId = dbHelper.GetUserByUsername("stefans").getId();
+        UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
         User user = dbHelper.GetUserById(userId);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (user.getRoles().stream().anyMatch(x -> x.getName().equals("Admin"))) {

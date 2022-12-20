@@ -35,12 +35,6 @@ public class PollsHistoryActivity extends AppCompatActivity implements PollsHist
     private List<Poll> polls;
     private DBHelper dbHelper;
 
-    public interface OnPollClickListener {
-        void onPollClick(int position);
-    }
-
-    private OnPollClickListener onPollClickListener;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +52,7 @@ public class PollsHistoryActivity extends AppCompatActivity implements PollsHist
         setSupportActionBar(toolbar);
 
         try {
-            //UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
-            UUID userId = dbHelper.GetUserByUsername("stefans").getId();
+            UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
             polls = dbHelper.GetFinishedPollsByUserId(userId);
             pollRecyclerView = (RecyclerView)findViewById(R.id.polls);
 
@@ -111,8 +104,7 @@ public class PollsHistoryActivity extends AppCompatActivity implements PollsHist
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuItem = menu.findItem(R.id.create_poll_button);
-//        UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
-        UUID userId = dbHelper.GetUserByUsername("stefans").getId();
+        UUID userId = ((LoggedInUserApplication)getApplication()).getUserId();
         User user = dbHelper.GetUserById(userId);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (user.getRoles().stream().anyMatch(x -> x.getName().equals("Admin"))) {
