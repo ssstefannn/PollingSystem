@@ -11,6 +11,8 @@
         tools:remove="android:maxSdkVersion" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
 
     <application
         android:name=".data.global.LoggedInUserApplication"
@@ -23,6 +25,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PollingSystem.NoActionBar"
         tools:targetApi="31">
+        <service
+            android:name=".services.PollFinishedService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".ui.historypollsactivity.PollsHistoryActivity"
             android:exported="false">

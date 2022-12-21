@@ -1,8 +1,12 @@
 package com.example.pollingsystem.ui.createpoll;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +17,8 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.example.pollingsystem.R;
 import com.example.pollingsystem.data.DBHelper;
@@ -28,6 +34,8 @@ import java.util.Date;
 import java.util.UUID;
 
 public class CreatePollActivity extends AppCompatActivity {
+    private static final String CHANNEL_ID = "idk";
+    private static final int NOTIFICATION_ID = 0;
     private LinearLayout questionsLinearLayout;
     private Button addQuestionButton;
     private DBHelper dbHelper;
@@ -61,6 +69,8 @@ public class CreatePollActivity extends AppCompatActivity {
         dbHelper = new DBHelper(db);
         dbHelper.Initialize();
         dbHelper.SetDefaultDbData();
+
+        createNotificationChannel();
     }
 
     @Override
@@ -98,10 +108,30 @@ public class CreatePollActivity extends AppCompatActivity {
                         dbHelper.SaveChoice(choice);
                     }
                 }
+
                 Intent intent = new Intent(this, ActiveUnansweredPollsActivity.class);
-                startActivity(intent);
-                return true;
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+                // Build the notification
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setSmallIcon(R.drawable.notification_icon)
+                        .setContentTitle("New poll")
+                        .setContentText("New poll has been published.")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setContentIntent(pendingIntent)
+                        .setOngoing(true)
+                        .setAutoCancel(true);
+
+                // Show the notification
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+
+                Intent intentT = new Intent(this, ActiveUnansweredPollsActivity.class);
+                startActivity(intentT);
+                 return true;
         }
+
         return false;
     }
 
@@ -139,6 +169,22 @@ public class CreatePollActivity extends AppCompatActivity {
         optionEditText.setHint("Enter option title");
         optionEditText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, layoutWeight));
         questionLinearLayout.addView(optionEditText, questionLinearLayout.getChildCount() - 1);
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
 }

@@ -18,6 +18,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -37,6 +38,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,13 +140,28 @@ public class VotePollActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        ArrayList<Integer> selectedChoices = (ArrayList<Integer>) votePollAdapter.getSelectedChoices();
-        outState.putParcelableArrayList("questions", selectedChoices);
+        List<Integer> selectedChoices = votePollAdapter.getSelectedChoices();
+        int[] selectedChoicesArray = new int[selectedChoices.size()];
+        for (int i = 0; i < selectedChoices.size(); i++) {
+            selectedChoicesArray[i] = selectedChoices.get(i);
+        }
+        outState.putIntArray("questions", selectedChoicesArray);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        selectedChoices = savedInstanceState.getParcelableArrayList("questions");
+        int[] selectedChoicesArray = savedInstanceState.getIntArray("questions");
+        ArrayList<Integer> selectedChoices = new ArrayList<>();
+        for (int i : selectedChoicesArray) {
+            selectedChoices.add(i);
+        }
+        votePollAdapter.setSelectedChoices(selectedChoices);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        finish();
+        return false;
     }
 }

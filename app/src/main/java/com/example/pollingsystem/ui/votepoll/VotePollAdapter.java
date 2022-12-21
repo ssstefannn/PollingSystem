@@ -77,7 +77,15 @@ public class VotePollAdapter extends RecyclerView.Adapter<VotePollAdapter.ViewHo
                 viewHolder.questionChoices.addView(rb);
             });
         }
-        viewHolder.questionChoices.check(selectedChoices.get(i));
+
+        // Get the index of the radio button that should be checked
+        int checkedIndex = selectedChoices.get(i);
+        if(checkedIndex != -1){
+            // Get a reference to the radio button at the checked index
+            RadioButton checkedButton = (RadioButton) viewHolder.questionChoices.getChildAt(checkedIndex);
+            // Set the checked state of the radio button
+            checkedButton.setChecked(true);
+        }
 
         viewHolder.questionChoices.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -87,6 +95,7 @@ public class VotePollAdapter extends RecyclerView.Adapter<VotePollAdapter.ViewHo
         });
     }
 
+
     // Пресметка на големината на податочното множество (повикано од layout manager)
     @Override
     public int getItemCount() {
@@ -95,5 +104,9 @@ public class VotePollAdapter extends RecyclerView.Adapter<VotePollAdapter.ViewHo
 
     public List<Integer> getSelectedChoices(){
         return selectedChoices;
+    }
+
+    public void setSelectedChoices(List<Integer> selectedChoices){
+        this.selectedChoices = selectedChoices;
     }
 }

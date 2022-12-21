@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.example.pollingsystem.data.global.LoggedInUserApplication;
 import com.example.pollingsystem.data.model.User;
 import com.example.pollingsystem.databinding.ActivityLoginBinding;
+import com.example.pollingsystem.services.PollFinishedService;
 import com.example.pollingsystem.ui.activeunansweredpolls.ActiveUnansweredPollsActivity;
 import com.example.pollingsystem.R;
 import com.example.pollingsystem.data.DBHelper;
@@ -130,6 +131,9 @@ public class LoginActivity extends AppCompatActivity {
                         passwordEditText.getText().toString(), db);
             }
         });
+
+        Intent intent = new Intent(this, PollFinishedService.class);
+        startService(intent);
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
